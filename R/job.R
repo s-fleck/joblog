@@ -28,7 +28,8 @@ job_start <- function(
   ...,
   id = ulid::generate(),
   repeats = NULL,
-  path = NULL
+  path = NULL,
+  msg = NULL
 ){
   assert(is_scalar_character(id))
   assert(is_scalar_character(name))
@@ -39,9 +40,14 @@ job_start <- function(
 
   assign(".last_job_id", id, envir = joblog.globals)
 
+  job_msg <- "job started"
+  if (!is.null(msg)){
+    job_msg <- paste0(job_msg, ": ", msg)
+  }
+
   compact(list(
     level = 400L,
-    msg = "job started",
+    msg = job_msg,
     type = "job",
     id = id,
     name = name,
@@ -60,10 +66,16 @@ job_start <- function(
 #' @export
 #' @rdname job_start
 job_finished <- function(
-  id = get(".last_job_id", envir = joblog.globals),
-  ...
+  msg = NULL,
+  ...,
+  id = get(".last_job_id", envir = joblog.globals)
 ){
-  list(level = 400L, msg = "job finished", type = "job",  id = id, status = 0L, ...)
+  job_msg <- "job finished successfully"
+  if (!is.null(msg)){
+    job_msg <- paste0(job_msg, ": ", msg)
+  }
+
+  list(level = 400L, msg = job_msg, type = "job",  id = id, status = 0L, ...)
 }
 
 
@@ -72,8 +84,14 @@ job_finished <- function(
 #' @export
 #' @rdname job_start
 job_failed <- function(
-  id = get(".last_job_id", envir = joblog.globals),
-  ...
+  msg = NULL,
+  ...,
+  id = get(".last_job_id", envir = joblog.globals)
 ){
-  list(level = 200L, msg = "job finished", type = "job", id = id, status = 2L, ...)
+  job_msg <- "job failed"
+  if (!is.null(msg)){
+    job_msg <- paste0(job_msg, ": ", msg)
+  }
+
+  list(level = 200L, msg = job_msg, type = "job", id = id, status = 2L, ...)
 }

@@ -13,6 +13,7 @@ scrape_joblog <- function(file){
       ts_start = timestamp[[1]],
       ts_end   = timestamp[[.N]],
       status   = last_known(status),
+      msg      = last_known(msg),
       repeats  = {if (exists("repeats")) last_known_timestamp(repeats) else as.POSIXct(NA)}
     )][1]
     ,
@@ -22,8 +23,8 @@ scrape_joblog <- function(file){
   res[status == 1, ts_end := as.Date(NA)]
   res[, repeats := as.POSIXct(repeats)]
 
-  res <- res[, !c("timestamp", "level", "caller", "msg", "logger", "type")]
-  setcolorder(res, c("ts_start", "ts_end", "name", "id", "status", "jobtype"))
+  res <- res[, !c("timestamp", "level", "caller", "logger", "type")]
+  setcolorder(res, c("ts_start", "ts_end", "name", "id", "status", "jobtype", "msg"))
   setkeyv(res, c("ts_start", "ts_end"))
   setattr(res, "class", union("joblog", class(res)))
   res
