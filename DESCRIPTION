@@ -23,5 +23,8 @@ Imports:
   utils
 Suggests: 
     testthat,
-    fansi
+    fansi,
+    knitr,
+    rmarkdown
 RoxygenNote: 7.0.2.9000
+VignetteBuilder: knitr
