@@ -13,7 +13,7 @@ scrape_joblog <- function(file){
       ts_start = timestamp[[1]],
       ts_end   = timestamp[[.N]],
       status   = last_known(status),
-      repeats  = last_known_timestamp(repeats)
+      repeats  = {if (exists("repeats")) last_known_timestamp(repeats) else as.POSIXct(NA)}
     )][1]
     ,
     by = "id"
@@ -78,6 +78,7 @@ last_known_timestamp <- function(x){
 
 last_known <- function(x){
   x <- x[!is.na(x)]
+
   if (length(x)){
     x[length(x)]
   } else {
