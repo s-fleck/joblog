@@ -75,7 +75,7 @@ job_start <- function(
 #' @rdname job_start
 job_finished <- function(
   msg = NULL,
-  id = get(".last_job_id", envir = joblog.globals)
+  id = last_job_id()
 ){
   job_msg <- "job finished successfully"
   if (!is.null(msg)){
@@ -92,7 +92,7 @@ job_finished <- function(
 #' @rdname job_start
 job_failed <- function(
   msg = NULL,
-  id = get(".last_job_id", envir = joblog.globals)
+  id = last_job_id()
 ){
   job_msg <- "job failed"
   if (!is.null(msg)){
@@ -100,4 +100,17 @@ job_failed <- function(
   }
 
   list(level = 200L, msg = job_msg, type = "job", id = id, status = 2L)
+}
+
+
+
+
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
+last_job_id <- function(){
+  get(".last_job_id", envir = joblog.globals)
 }

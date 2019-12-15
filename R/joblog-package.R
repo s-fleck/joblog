@@ -15,3 +15,4 @@ utils::globalVariables(c(".overdue", ".today", "repeats", "status", "timestamp",
 
 
 joblog.globals <- new.env()
+assign(".last_job_id", NULL, envir = joblog.globals)

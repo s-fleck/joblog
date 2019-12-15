@@ -17,9 +17,9 @@ job_start(
   msg = NULL
 )
 
-job_finished(msg = NULL, id = get(".last_job_id", envir = joblog.globals))
+job_finished(msg = NULL, id = last_job_id())
 
-job_failed(msg = NULL, id = get(".last_job_id", envir = joblog.globals))
+job_failed(msg = NULL, id = last_job_id())
 }
 \arguments{
 \item{name}{`character` scalar. Name of the job}
