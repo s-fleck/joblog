@@ -1,0 +1,27 @@
+Type: Package
+Package: joblog
+Title: Log cronjobs with lgr
+Version: 0.0.1
+Authors@R: 
+    person(given = "Stefan",
+           family = "Fleck",
+           role = c("aut", "cre"),
+           email = "stefan.b.fleck@gmail.com",
+           comment = c(ORCID = "0000-0003-3344-9851"))
+Maintainer: Stefan Fleck <stefan.b.fleck@gmail.com>
+Description: Log cronjobs with lgr.
+License: MIT + file LICENSE
+URL: https://s-fleck.github.io/joblog
+BugReports: https://github.com/s-fleck/joblog/issues
+Encoding: UTF-8
+LazyData: true
+Imports:
+  data.table,
+  lgr,
+  ulid,
+  crayon,
+  utils
+Suggests: 
+    testthat,
+    fansi
+RoxygenNote: 7.0.2.9000

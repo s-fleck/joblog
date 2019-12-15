@@ -1,0 +1,80 @@
+---
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+options(crayon.enabled = TRUE, width = 1024)
+fansi::set_knit_hooks(knitr::knit_hooks)
+
+```
+
+# joblog
+
+An example package to show how custom "virtual event types" can be leverage
+to easily create powerfull logging infrastructure
+<!-- badges: start -->
+<!-- badges: end -->
+
+
+## Installation
+
+``` r
+remotes::install_github("s-fleck/joblog")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example, width = 1000}
+library(joblog)
+
+lf <- paste0(tempfile(), ".jsonl")
+on.exit(unlink(lf))
+lg <- lgr::get_logger("jobs")$set_propagate(FALSE)
+lg$add_appender(lgr::AppenderJson$new(file = lf))
+
+# normal job
+lg$list_log(job_start("example", repeats = Sys.Date(), timestamp = Sys.Date() - 1L))
+lg$list_log(job_finished())  # mark the last job as finished
+
+# job that repeats tomorrow
+lg$list_log(job_start("example", repeats = Sys.Date() + 1L))
+lg$list_log(job_finished())
+
+# job that repeats today
+lg$list_log(job_start("example-due-today", repeats = Sys.Date(), timestamp = as.POSIXct(Sys.Date() - 1L)))
+lg$list_log(job_finished())
+
+# job that is overdue repeats today
+lg$list_log(job_start("example-overdue", repeats = Sys.Date()-1L, timestamp = as.POSIXct(Sys.Date() - 2L)))
+lg$list_log(job_finished())
+
+# currently running job
+lg$list_log(job_start("example-still-running"))
+
+```
+
+joblog provides helpers to extract jobs from a .jsonl log and comes with a print
+method that colors jobs whether they are overdue, due today or still running
+
+```{r}
+print(scrape_joblog(lf))
+```
+
+
+```
+#cleanup
+unlink(lf)
+
+```
