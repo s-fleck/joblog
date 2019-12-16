@@ -4,7 +4,7 @@
 \alias{scrape_joblog}
 \title{Scrape joblog jobs from a Json Log}
 \usage{
-scrape_joblog(file)
+scrape_joblog(x)
 }
 \arguments{
 \item{file}{a `.jsonl` file as created by [lgr::AppenderJson]}

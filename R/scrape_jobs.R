@@ -7,27 +7,79 @@
 #' @return a `data.table`
 #' @export
 #'
-scrape_joblog <- function(file){
-  res <- as.data.table(lgr::read_json_lines(file))[type == "job"][,
-    copy(.SD)[, `:=`(
-      ts_start = timestamp[[1]],
-      ts_end   = timestamp[[.N]],
-      status   = last_known(status),
-      msg      = last_known(msg),
-      repeats  = {if (exists("repeats")) last_known_timestamp(repeats) else as.POSIXct(NA)}
-    )][1]
-    ,
+scrape_joblog <- function(x){
+  UseMethod("scrape_joblog")
+}
+
+
+
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
+scrape_joblog.data.table <- function(x){
+  res <- x[type == "job"][,
+  copy(.SD)[, `:=`(
+    ts_start = timestamp[[1]],
+    ts_end   = timestamp[[.N]],
+    status   = last_known(status),
+    msg      = last_known(msg),
+    repeats  = {if (exists("repeats")) last_known_timestamp(repeats) else as.POSIXct(NA)}
+  )][1]
+  ,
     by = "id"
   ]
 
   res[status == 1, ts_end := as.Date(NA)]
   res[, repeats := as.POSIXct(repeats)]
 
+  for (i_col in rev(seq_along(res))){
+    if (all(is.na(res[[i_col]]))){
+      set(res, j = i_col, value = NULL)
+    }
+  }
+
+
   res <- res[, !c("timestamp", "level", "caller", "logger", "type")]
   setcolorder(res, c("ts_start", "ts_end", "name", "id", "status", "jobtype", "msg"))
   setkeyv(res, c("ts_start", "ts_end"))
   setattr(res, "class", union("joblog", class(res)))
   res
+}
+
+
+
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
+scrape_joblog.character <- function(x){
+  scrape_joblog(lgr::read_json_lines(file))
+}
+
+
+
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
+scrape_joblog.data.frame <- function(x){
+  scrape_joblog(as.data.table(x))
 }
 
 
