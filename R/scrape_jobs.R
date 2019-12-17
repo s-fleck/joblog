@@ -138,3 +138,51 @@ last_known <- function(x){
     NA
   }
 }
+
+
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
+summary.joblog <- function(x){
+  dd <- as.data.table(x)
+
+  dd[, runtime := ts_start - ts_end]
+  dd[, date    := as.Date(ts_start)]
+  dd[, status_col := as.character(status)]
+
+  res <- dcast(dd, date ~ name, value.var = "status_col", fun.aggregate = function(.) paste(., collapse = "-"))
+  data.table::setattr(res, "class", union("joblog_summary", class(res)))
+  res
+}
+
+
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print.joblog_summary <- function(x){
+
+  pd <- as.matrix(x)
+  pd <- rbind(t(matrix(colnames(pd))), pd)
+
+  for (cid in seq_len(ncol(pd))){
+    pd[, cid] <- sfmisc::pad_left(pd[ ,cid])
+  }
+
+  for (rid in seq_len(nrow(pd))){
+    cat(pd[rid, ], "\n")
+  }
+
+  invisible(x)
+}

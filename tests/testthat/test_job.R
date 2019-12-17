@@ -45,7 +45,6 @@ test_that("logging jobs works as expected",{
 
 
 
-
 test_that("still running job doesn't cause scrape_joblog to fail",{
   lf <- paste0(tempfile(), ".jsonl")
   on.exit(unlink(lf))
