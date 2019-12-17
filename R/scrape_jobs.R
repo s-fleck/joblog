@@ -64,7 +64,7 @@ scrape_joblog.data.table <- function(x){
 #'
 #' @examples
 scrape_joblog.character <- function(x){
-  scrape_joblog(lgr::read_json_lines(file))
+  scrape_joblog(lgr::read_json_lines(x))
 }
 
 
