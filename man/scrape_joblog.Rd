@@ -2,16 +2,53 @@
 % Please edit documentation in R/scrape_jobs.R
 \name{scrape_joblog}
 \alias{scrape_joblog}
-\title{Scrape joblog jobs from a Json Log}
+\alias{scrape_joblog.data.table}
+\alias{scrape_joblog.character}
+\alias{scrape_joblog.data.frame}
+\title{Scrape joblog jobs from}
 \usage{
 scrape_joblog(x)
+
+\method{scrape_joblog}{data.table}(x)
+
+\method{scrape_joblog}{character}(x)
+
+\method{scrape_joblog}{data.frame}(x)
 }
 \arguments{
-\item{file}{a `.jsonl` file as created by [lgr::AppenderJson]}
+\item{x}{a \code{data.frame} or the path to a \code{.jsonl} file as created by
+\link[lgr:AppenderJson]{lgr::AppenderJson}}
 }
 \value{
-a `data.table`
+a \code{data.table}
 }
 \description{
-Scrape joblog jobs from a Json Log
+Extracts a \link{joblog} \code{data.table} from a \code{data.frame} or a \code{.jsonl} logfile.
+The resulting \code{data.table} whill contain all the fields logged with
+\code{\link[=job_start]{job_start()}}. If a \code{\link[=job_finished]{job_finished()}} or \code{\link[=job_failed]{job_failed()}} was registered for
+the same job id, they will override the fields from the job start (see examples)
+}
+\examples{
+logfile <- tempfile()
+
+lg <- lgr::get_logger("test")$
+  set_propagate(FALSE)$
+  add_appender(lgr::AppenderJson$new(file = logfile), "json")
+
+lg$list_log(job_start("update-database"))
+lg$list_log(job_finished())
+
+# run the job again the next day
+lg$list_log(job_start("update-database"))
+lg$list_log(job_failed("something went wrong this time"))
+
+# The log of a json appender can be accessed conveniently via its $data field
+lg$appenders$json$data
+
+# scrape_joblog summarieses alle log-rows that relate to a specifc job
+scrape_joblog(lg$appenders$json$data)
+scrape_joblog(logfile)
+
+unlink(logfile)
+lg$config(NULL)  # reset logger
 }

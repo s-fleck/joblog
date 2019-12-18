@@ -4,9 +4,13 @@
 \name{joblog-package}
 \alias{joblog}
 \alias{joblog-package}
-\title{joblog: Log cronjobs with lgr}
+\title{joblog: Log jobs with lgr}
 \description{
-Log cronjobs with lgr.
+joblog proposes a format for logging the
+    start and completion of jobs via 'lgr' (such as cron jobs or
+    automatically triggered etl operations) and provides utility functions
+    to analyse such logs.  It is desinged to showcase the flexibility of
+    lgr, and not useful on its own.
 }
 \seealso{
 Useful links:

@@ -1,7 +1,7 @@
 Type: Package
 Package: joblog
-Title: Log cronjobs with lgr
-Version: 0.0.1.9001
+Title: Log jobs with lgr
+Version: 0.0.1.9002
 Authors@R: 
     person(given = "Stefan",
            family = "Fleck",
@@ -9,22 +9,28 @@ Authors@R:
            email = "stefan.b.fleck@gmail.com",
            comment = c(ORCID = "0000-0003-3344-9851"))
 Maintainer: Stefan Fleck <stefan.b.fleck@gmail.com>
-Description: Log cronjobs with lgr.
+Description:  joblog proposes a format for logging the
+    start and completion of jobs via 'lgr' (such as cron jobs or
+    automatically triggered etl operations) and provides utility functions
+    to analyse such logs.  It is desinged to showcase the flexibility of
+    lgr, and not useful on its own.
 License: MIT + file LICENSE
 URL: https://s-fleck.github.io/joblog
 BugReports: https://github.com/s-fleck/joblog/issues
-Encoding: UTF-8
-LazyData: true
 Imports:
-  data.table,
-  lgr,
-  ulid,
-  crayon,
-  utils
+    crayon,
+    data.table,
+    lgr,
+    ulid,
+    utils
 Suggests: 
-    testthat,
     fansi,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.0.2.9000
-VignetteBuilder: knitr

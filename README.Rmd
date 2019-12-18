@@ -26,9 +26,8 @@ fansi::set_knit_hooks(knitr::knit_hooks)
 
 joblog proposes a format for logging the start and completion of jobs via
 [lgr](https://github.com/s-fleck/lgr) (such as cron jobs or automatically 
-triggered etl operations). joblog assumes you are logging to 
-[jsonlines](http://jsonlines.org/) files, but other formats/logging destinations
-could be supported in theory.
+triggered etl operations) and provides utility functions to analyse such logs.
+It is desinged to showcase the flexibility of lgr, and not useful on its own.
 
 
 

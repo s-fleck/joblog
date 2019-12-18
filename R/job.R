@@ -11,6 +11,8 @@
 #' @param id a global unique id (such as UUID or ULID) for the job
 #' @param repeats `timestamp` when the job is expected to repeat
 #' @param path `character` scalar. path to the script that contains the job
+#' @param msg `character` scalar. a custom message to add to the job's log
+#'   message
 #'
 #' @section Side Effects:
 #'   `job_start()` assigns the variable `.last_job_id` to the environment
@@ -18,8 +20,11 @@
 #'   you want to run several jobs concurrently, you need to pass `id` in
 #'   manually.
 #'
-#' @return a `list()` for `Logger$list_log()`
+#' @return `job_start()`, `job_finsihed()`, `job_failed()` return a `list()`
+#'   that can be passed to `Logger$list_log()`
 #' @export
+#' @name job
+#' @aliases job_start
 #'
 #' @examples
 #' lg <- lgr::get_logger("test")
@@ -29,6 +34,8 @@
 #' # run the job again the next day
 #' lg$list_log(job_start("update-database"))
 #' lg$list_log(job_failed("something went wrong this time"))
+#'
+#' last_job_id()
 job_start <- function(
   name,
   status =  1L,
@@ -72,7 +79,7 @@ job_start <- function(
 
 
 #' @export
-#' @rdname job_start
+#' @rdname job
 job_finished <- function(
   msg = NULL,
   id = last_job_id()
@@ -89,7 +96,7 @@ job_finished <- function(
 
 
 #' @export
-#' @rdname job_start
+#' @rdname job
 job_failed <- function(
   msg = NULL,
   id = last_job_id()
@@ -105,12 +112,10 @@ job_failed <- function(
 
 
 
-#' Title
-#'
-#' @return
+#' @return `last_job_id()` returns the id (a `character` scalar) of the last
+#'   job registered with `job_start()`.
 #' @export
-#'
-#' @examples
+#' @rdname job
 last_job_id <- function(){
   get(".last_job_id", envir = joblog.globals)
 }
