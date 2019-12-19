@@ -79,7 +79,7 @@ summary.joblog <- function(object, ...){
   dd[, date    := as.Date(ts_start)]
   dd[, status_col := as.character(status)]
 
-  res <- dcast(dd, date ~ name, value.var = "status_col", fun.aggregate = function(.) paste(., collapse = "-"))
+  res <- dcast(dd, date ~ name, value.var = "status_col", fun.aggregate = list)
   data.table::setattr(res, "class", union("joblog_summary", class(res)))
   res
 }
@@ -90,6 +90,36 @@ summary.joblog <- function(object, ...){
 #' @rdname joblog
 #' @export
 print.joblog_summary <- function(x, ...){
+
+  x <- data.table::copy(x)
+
+  if (requireNamespace("cli", quietly = TRUE)){
+    sym_ok      <- cli::symbol$tick
+    sym_running <- cli::symbol$play
+    sym_fail    <- cli::symbol$cross
+  } else {
+    sym_ok      <- 0L
+    sym_running <- 1L
+    sym_fail    <- 2L
+  }
+
+  if (requireNamespace("crayon", quietly = TRUE)){
+    pad_left <- pad_left_col
+    sym_ok <- crayon::green(sym_ok)
+    sym_running <- crayon::magenta(sym_running)
+    sym_fail <- crayon::red(sym_fail)
+  }
+
+  label_status <- function(.){
+    .[. == 0] <- sym_ok
+    .[. == 1] <- sym_running
+    .[. == 2] <- sym_fail
+    paste(., collapse = "")
+  }
+
+  for (col in setdiff(names(x), "date")){
+    set(x, j = col, value = vapply(x[[col]], label_status, character(1)))
+  }
 
   pd <- as.matrix(x)
   pd <- rbind(t(matrix(colnames(pd))), pd)
@@ -138,3 +168,18 @@ last_known <- function(x){
     NA
   }
 }
+
+
+
+pad_left_col <- function(
+  x,
+  width = max(crayon::col_nchar(x)),
+  pad = " "
+){
+  diff <- pmax(width - crayon::col_nchar(paste(x)), 0L)
+  padding <-
+    vapply(diff, function(i) paste(rep.int(pad, i), collapse = ""), character(1))
+  paste0(padding, x)
+}
+
+
