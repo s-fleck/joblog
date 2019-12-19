@@ -93,28 +93,24 @@ print.joblog_summary <- function(x, ...){
 
   x <- data.table::copy(x)
 
-  if (requireNamespace("cli", quietly = TRUE)){
-    sym_ok      <- cli::symbol$tick
-    sym_running <- cli::symbol$play
-    sym_fail    <- cli::symbol$cross
-  } else {
-    sym_ok      <- 0L
-    sym_running <- 1L
-    sym_fail    <- 2L
-  }
+  sym_ok      <- "o"
+  sym_running <- "r"
+  sym_fail    <- "e"
+
 
   if (requireNamespace("crayon", quietly = TRUE)){
     pad_left <- pad_left_col
     sym_ok <- crayon::green(sym_ok)
     sym_running <- crayon::magenta(sym_running)
     sym_fail <- crayon::red(sym_fail)
+    sym_sep <- crayon::silver("-")
   }
 
   label_status <- function(.){
     .[. == 0] <- sym_ok
     .[. == 1] <- sym_running
     .[. == 2] <- sym_fail
-    paste(., collapse = "")
+    paste(., collapse = sym_sep)
   }
 
   for (col in setdiff(names(x), "date")){
@@ -123,6 +119,7 @@ print.joblog_summary <- function(x, ...){
 
   pd <- as.matrix(x)
   pd <- rbind(t(matrix(colnames(pd))), pd)
+
 
   for (cid in seq_len(ncol(pd))){
     pd[, cid] <- pad_left(pd[ ,cid])
