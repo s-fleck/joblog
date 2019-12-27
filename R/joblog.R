@@ -75,11 +75,26 @@ summary.joblog <- function(object, ...){
 
   runtime <- date <- status_col <- NULL
 
-  dd[, runtime := ts_start - ts_end]
-  dd[, date    := as.Date(ts_start)]
-  dd[, status_col := as.character(status)]
+  dd[, `:=`(
+    runtime  = ts_start - ts_end,
+    date     = as.Date(ts_start),
+    date_rep = as.Date(repeats),
+    status_col = as.character(status)
+  )]
+
+  dd[, sel := repeats < max(ts_start), by = "name" ]
+
+  dd[which(sel), date_rep := as.Date(NA)]
+  dd[, val := NA_integer_]
+
 
   res <- dcast(dd, date ~ name, value.var = "status_col", fun.aggregate = list)
+  rep <- dcast(dd[!is.na(date_rep)], date_rep ~ name, value.var = "val", fun.aggregate = list)
+  data.table::setnames(rep, "date_rep", "date")
+
+  res <- rbind(res, rep, fill = TRUE)
+
+  data.table::setkeyv(res, "date")
   data.table::setattr(res, "class", union("joblog_summary", class(res)))
   res
 }
@@ -91,11 +106,14 @@ summary.joblog <- function(object, ...){
 #' @export
 print.joblog_summary <- function(x, ...){
 
+
   x <- data.table::copy(x)
 
-  sym_ok      <- "o"
-  sym_running <- "r"
-  sym_fail    <- "e"
+  sym_ok       <- "o"
+  sym_running  <- "r"
+  sym_fail     <- "e"
+  sym_pending  <- "?"
+  sym_sep      <- "-"
 
 
   if (requireNamespace("crayon", quietly = TRUE)){
@@ -103,13 +121,15 @@ print.joblog_summary <- function(x, ...){
     sym_ok <- crayon::green(sym_ok)
     sym_running <- crayon::magenta(sym_running)
     sym_fail <- crayon::red(sym_fail)
-    sym_sep <- crayon::silver("-")
+    sym_pending <- crayon::blue("?")
+    sym_sep <- crayon::silver(sym_sep)
   }
 
   label_status <- function(.){
-    .[. == 0] <- sym_ok
-    .[. == 1] <- sym_running
-    .[. == 2] <- sym_fail
+    .[. == 0]   <- sym_ok
+    .[. == 1]   <- sym_running
+    .[. == 2]   <- sym_fail
+    .[is.na(.)] <- sym_pending
     paste(., collapse = sym_sep)
   }
 

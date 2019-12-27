@@ -14,7 +14,7 @@ test_that("joblog works as expected", {
   lg$list_log(job_start("job1"))
   lg$list_log(job_failed("job1"))
 
-  lg$list_log(job_start("job2"))
+  lg$list_log(job_start("job2", repeats = Sys.Date()))
   lg$list_log(job_finished("job2"))
   lg$list_log(job_start("job2"))
   lg$list_log(job_start("job2"))
@@ -22,7 +22,7 @@ test_that("joblog works as expected", {
 
   day <- 60*60*24
 
-  lg$list_log(job_start("job2", timestamp = Sys.time() - day))
+  lg$list_log(job_start("job2", timestamp = Sys.time() - day, repeats = Sys.Date() + 2))
   lg$list_log(job_finished("job2"))
   lg$list_log(job_start("job2", timestamp = Sys.time() - day))
   lg$list_log(job_start("job2", timestamp = Sys.time() - day))
@@ -31,6 +31,8 @@ test_that("joblog works as expected", {
   summary(scrape_joblog(lg$appenders$buffer$dt))
 
 
+
+  scrape_joblog(lg$appenders$buffer$dt)
 
 
 
