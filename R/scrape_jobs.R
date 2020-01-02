@@ -53,7 +53,7 @@ scrape_joblog.data.table <- function(x){
     copy(.SD)[, `:=`(
       ts_start = timestamp[[1]],
       ts_end   = timestamp[[.N]],
-      status   = last_known(status),
+      status   = last_known_status(status),
       msg      = last_known(msg),
       repeats  = last_known_timestamp(repeats))
     ][1]
@@ -61,6 +61,7 @@ scrape_joblog.data.table <- function(x){
     by = "id"
   ]
 
+  res <- res[!is.na(status)]
   res[status == 1, ts_end := as.Date(NA)]
 
   for (i_col in rev(seq_along(res))){
@@ -71,6 +72,7 @@ scrape_joblog.data.table <- function(x){
       set(res, j = i_col, value = NULL)
     }
   }
+
 
   res <- res[, !c("timestamp", "level", "caller", "logger", "type")]
   set_joblog(res)

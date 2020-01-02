@@ -182,6 +182,14 @@ last_known_timestamp <- function(x){
 
 
 
+last_known_status <- function(x){
+  if (!any(x == 1))
+    return(NA_integer_)
+
+  last_known(x)
+}
+
+
 
 last_known <- function(x){
   x <- x[!is.na(x)]
