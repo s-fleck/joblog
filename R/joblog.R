@@ -82,20 +82,18 @@ summary.joblog <- function(object, ...){
     status_col = as.character(status)
   )]
 
-  dd[, sel := repeats < max(ts_start), by = "name" ]
+  # add repeats
+    dd[, sel := repeats < max(ts_start), by = "name" ]
+    reps <- dd[which(!sel)]
+    reps[, `:=`(status_col = NA_character_, date = date_rep)]
+    dd <- rbind(dd, reps)
 
-  dd[which(sel), date_rep := as.Date(NA)]
-  dd[, val := NA_integer_]
 
+  # aggregate and return
+    res <- dcast(dd, date ~ name, value.var = "status_col", fun.aggregate = list)
+    data.table::setkeyv(res, "date")
+    data.table::setattr(res, "class", union("joblog_summary", class(res)))
 
-  res <- dcast(dd, date ~ name, value.var = "status_col", fun.aggregate = list)
-  rep <- dcast(dd[!is.na(date_rep)], date_rep ~ name, value.var = "val", fun.aggregate = list)
-  data.table::setnames(rep, "date_rep", "date")
-
-  res <- rbind(res, rep, fill = TRUE)
-
-  data.table::setkeyv(res, "date")
-  data.table::setattr(res, "class", union("joblog_summary", class(res)))
   res
 }
 
@@ -106,7 +104,6 @@ summary.joblog <- function(object, ...){
 #' @export
 print.joblog_summary <- function(x, ...){
 
-
   x <- data.table::copy(x)
 
   sym_ok       <- "o"
@@ -114,6 +111,8 @@ print.joblog_summary <- function(x, ...){
   sym_fail     <- "e"
   sym_pending  <- "?"
   sym_sep      <- "-"
+  sym_today    <- "> "
+  sym_ntd      <- paste(rep(" ", nchar(sym_today)), collapse = "")
 
 
   if (requireNamespace("crayon", quietly = TRUE)){
@@ -123,6 +122,7 @@ print.joblog_summary <- function(x, ...){
     sym_fail <- crayon::red(sym_fail)
     sym_pending <- crayon::blue("?")
     sym_sep <- crayon::silver(sym_sep)
+    sym_today <- sym_today
   }
 
   label_status <- function(.){
@@ -138,6 +138,13 @@ print.joblog_summary <- function(x, ...){
   }
 
   pd <- as.matrix(x)
+
+
+  pd[, "date"] <- ifelse(
+    pd[, "date"] == as.character(Sys.Date()),
+    paste0(sym_today, pd[, "date"]),
+    paste0(sym_ntd,   pd[, "date"])
+  )
   pd <- rbind(t(matrix(colnames(pd))), pd)
 
 
