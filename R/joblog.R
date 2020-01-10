@@ -83,8 +83,8 @@ summary.joblog <- function(object, ...){
   )]
 
   # add repeats
-    dd[, sel := repeats < max(ts_start), by = "name" ]
-    reps <- dd[which(!sel)]
+    dd[, .sel := repeats > max(ts_start), by = "name"]
+    reps <- dd[.sel == TRUE]
     reps[, `:=`(status_col = NA_character_, date = date_rep)]
     dd <- rbind(dd, reps)
 
